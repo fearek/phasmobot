@@ -125,7 +125,19 @@ function getEvidence(evlist)
   });
   return evidencestr
 }
-
+function uniq(a) {
+    var seen = {};
+    return a.filter(function(item) {
+        return seen.hasOwnProperty(item) ? false : (seen[item] = true);
+    });
+}
+function getLeftEvidence(chosenval,ghostval)
+{
+    let leftevidence = ghostval.filter( function( el ) {
+        return !chosenval.includes( el );
+      } );
+      return leftevidence;
+}
 function getGhost(values)
 {
     let intvalues = values.map(function (x) { 
@@ -134,6 +146,8 @@ function getGhost(values)
     let keys = []
     let chosenevidence = getEvidence(intvalues)
     keys.push(`Chosen evidence: ${chosenevidence.toString()}\n`)
+    let leftevidence = []
+    let ghostevidenceint = []
     let found = 0
     for(let k in ghosts)
     {
@@ -142,6 +156,9 @@ function getGhost(values)
         if(ifcontains == true)
         {
             let ghostevidence = getEvidence(ghosts[k]["evidence"])
+            ghostevidenceint = ghostevidenceint.concat(ghosts[k]["evidence"].map(function (x) { 
+                return parseInt(x, 10); 
+              }));
             keys.push(`\nType: ${ghosts[k]["type"]}\n Strength: ${ghosts[k]["strength"]}\n Weakness: ${ghosts[k]["weakness"]}\n Evidence: ${ghostevidence.toString()}\n`)
             found++
         }
@@ -150,10 +167,20 @@ function getGhost(values)
     if(found <= 0)
     {
         keys.push("No ghosts with that evidence.")
+        return keys;
     }
+    ghostevidenceint = uniq(ghostevidenceint)
+    leftevidence = getLeftEvidence(intvalues,ghostevidenceint)
+    leftevidence = getEvidence(leftevidence)
+    if(leftevidence.length === 0)
+    {
+        leftevidence[0] = " You got all of the evidence."
+    }
+    keys.push(`\nEvidence left to check: ${leftevidence}`)
     return keys;
 }
-const { REST } = require('@discordjs/rest');
+// RUN THIS ONCE WHEN YOU START YOUR BOT, IT CAN BUG IT WHEN YOU RUN IT EVERYTIME YOUR BOT LAUNCHES
+/*const { REST } = require('@discordjs/rest'); 
 const { Routes } = require('discord-api-types/v9');
 
 const commands = [{
@@ -161,14 +188,14 @@ const commands = [{
   description: 'Start the evidence selector'
 }]; 
 
-const rest = new REST({ version: '9' }).setToken('YOUR_TOKEN');
+const rest = new REST({ version: '9' }).setToken('YOUR TOKEN HERE');
 
 (async () => {
   try {
     console.log('Started refreshing application (/) commands.');
 
    await rest.put(
-	Routes.applicationCommands("YOUR_APP_ID"),
+	Routes.applicationCommands("YOUR BOT APP ID HERE"),
 	{ body: commands },
 	);
 
@@ -176,7 +203,7 @@ const rest = new REST({ version: '9' }).setToken('YOUR_TOKEN');
   } catch (error) {
     console.error(error);
   }
-})();
+})();*/
 
 const { Client, Intents, MessageActionRow, MessageSelectMenu } = require('discord.js');
 const client = new Client({
@@ -250,4 +277,4 @@ client.on('interactionCreate', async interaction => {
 }
 });
 
-client.login('YOUR_TOKEN');
+client.login('YOUR TOKEN HERE');
