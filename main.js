@@ -194,9 +194,9 @@ client.on('interactionCreate', async interaction => {
         if(interaction.customId === 'select')
         {
             await interaction.reply({content: "Wait..."});
-           let gowno = getGhost(interaction.values)
+           let ghost = getGhost(interaction.values)
            try{
-           await interaction.editReply({ content: `${interaction.user.toString()}\n${gowno.join(" ")}`, components: [] });
+           await interaction.editReply({ content: `${interaction.user.toString()}\n${ghost.join(" ")}`, components: [] });
            }
            catch(err)
            {
